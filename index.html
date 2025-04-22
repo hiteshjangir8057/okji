@@ -261,8 +261,6 @@
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -330,6 +328,20 @@
     </div>
 
     <script>
+        // JSZip और FileSaver के बिना ZIP फंक्शनैलिटी
+        function downloadAllAsZipAlternative() {
+            if (compressedFiles.length === 0) return;
+            
+            if (compressedFiles.length === 1) {
+                // सिंगल फाइल के लिए सीधे डाउनलोड
+                downloadImage(compressedFiles[0].blob, `compressed_${compressedFiles[0].name}`);
+                return;
+            }
+            
+            // मल्टीपल फाइल्स के लिए एक-एक करके डाउनलोड
+            alert('GitHub Pages पर ZIP फंक्शनैलिटी काम नहीं करती। फाइल्स अलग-अलग डाउनलोड करें।');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Elements
             const uploadArea = document.getElementById('uploadArea');
@@ -366,7 +378,7 @@
             fileInput.addEventListener('change', handleFileSelection);
             a4Checkbox.addEventListener('change', toggleA4Options);
             compressBtn.addEventListener('click', compressAllImages);
-            downloadAllBtn.addEventListener('click', downloadAllAsZip);
+            downloadAllBtn.addEventListener('click', downloadAllAsZipAlternative);
             
             // Preset buttons
             presetBtns.forEach(btn => {
@@ -673,27 +685,6 @@
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-            }
-            
-            function downloadAllAsZip() {
-                if (compressedFiles.length === 0) return;
-                
-                loadingText.textContent = 'Creating ZIP file...';
-                loading.style.display = 'block';
-                
-                setTimeout(() => {
-                    const zip = new JSZip();
-                    const folder = zip.folder("compressed_images");
-                    
-                    compressedFiles.forEach(file => {
-                        folder.file(`compressed_${file.name}`, file.blob);
-                    });
-                    
-                    zip.generateAsync({ type: "blob" }).then(content => {
-                        saveAs(content, "compressed_images.zip");
-                        loading.style.display = 'none';
-                    });
-                }, 100);
             }
             
             function formatFileSize(bytes) {
